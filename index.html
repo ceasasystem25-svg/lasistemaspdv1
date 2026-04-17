@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Vendas Pro v10.28 - Preparação Fiscal (cBenef)</title>
+    <title>Sistema de Vendas Pro v10.29 - Auto-Busca CNPJ</title>
     <style>
         :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --bg: #f3f4f6; --text: #1f2937; --info: #0ea5e9; }
         
@@ -239,27 +239,20 @@
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                     <h3 style="margin:0">Cadastro de Clientes</h3>
-                    <span style="font-size: 0.85rem; color: #666;">Dados completos preparam o sistema para a Nota Fiscal!</span>
+                    <span style="font-size: 0.85rem; color: #666;">Digite o CNPJ para preencher os dados sozinho!</span>
                 </div>
                 <form id="form-cliente" onsubmit="saveClient(event)">
                     <input type="hidden" id="c-id-edit">
                     <div class="form-row">
                         <div class="form-group" style="max-width: 120px;"><label>Código</label><input type="number" id="c-codigo" required placeholder="Ex: 10"></div>
-                        <div class="form-group" style="flex:2"><label>Nome Completo</label><input type="text" id="c-nome" required></div>
-                        <div class="form-group" style="max-width: 150px;"><label>Prazo (Dias)</label><input type="number" id="c-prazo" value="30"></div>
-                        <div class="form-group"><label>Telefone</label><input type="text" id="c-telefone" placeholder="(  )       -"></div>
+                        <div class="form-group" style="flex:1.5"><label>CPF / CNPJ</label><input type="text" id="c-cpf" placeholder="Apenas números. CNPJ busca auto." onblur="buscarCNPJ(this.value)"></div>
+                        <div class="form-group" style="flex:2"><label>Nome / Nome Fantasia</label><input type="text" id="c-nome" required placeholder="Aparece nas vendas"></div>
+                        <div class="form-group" style="flex:2"><label>Razão Social (Fiscal)</label><input type="text" id="c-razao" placeholder="Apenas para empresas"></div>
                     </div>
                     
-                    <div class="form-row" style="background: #f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0;">
-                        <div class="form-group" style="max-width: 150px;"><label>CEP</label><input type="text" id="c-cep" placeholder="Apenas números" onblur="buscarCEP(this.value)"></div>
-                        <div class="form-group" style="flex:2"><label>Rua/Avenida</label><input type="text" id="c-rua" placeholder="Ex: Av. Brasil"></div>
-                        <div class="form-group" style="max-width: 100px;"><label>Nº</label><input type="text" id="c-num" placeholder="Ex: 100"></div>
-                        <div class="form-group" style="flex:1"><label>Cidade</label><input type="text" id="c-cidade" placeholder="Ex: São Paulo"></div>
-                    </div>
-
-                    <div class="form-row" style="margin-bottom: 0; align-items: flex-end;">
-                        <div class="form-group"><label>CPF / CNPJ</label><input type="text" id="c-cpf" placeholder="Apenas números"></div>
-                        <div class="form-group"><label>Inscrição Estadual (IE)</label><input type="text" id="c-ie" placeholder="Opcional"></div>
+                    <div class="form-row" style="align-items: flex-end;">
+                        <div class="form-group" style="max-width: 150px;"><label>Prazo (Dias)</label><input type="number" id="c-prazo" value="30"></div>
+                        <div class="form-group" style="flex:1"><label>Inscrição Estadual (IE)</label><input type="text" id="c-ie" placeholder="Opcional"></div>
                         <div class="form-group" style="flex:1.5"><label>Indicador de IE</label>
                             <select id="c-ind-ie">
                                 <option value="9">Não Contribuinte (Pessoa Física/Isento)</option>
@@ -267,15 +260,24 @@
                                 <option value="2">Contribuinte Isento</option>
                             </select>
                         </div>
-                        <div class="form-group" style="flex: none;">
-                            <button type="submit" class="btn btn-primary" id="btn-cli-save" style="height: auto;">Salvar Cliente</button>
+                        <div class="form-group"><label>Telefone</label><input type="text" id="c-telefone" placeholder="(  )       -"></div>
+                    </div>
+                    
+                    <div class="form-row" style="background: #f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 0;">
+                        <div class="form-group" style="max-width: 150px;"><label>CEP</label><input type="text" id="c-cep" placeholder="Apenas números" onblur="buscarCEP(this.value)"></div>
+                        <div class="form-group" style="flex:2"><label>Rua/Avenida</label><input type="text" id="c-rua" placeholder="Ex: Av. Brasil"></div>
+                        <div class="form-group" style="max-width: 100px;"><label>Nº</label><input type="text" id="c-num" placeholder="Ex: 100"></div>
+                        <div class="form-group" style="flex:1"><label>Cidade</label><input type="text" id="c-cidade" placeholder="Ex: São Paulo"></div>
+                        
+                        <div class="form-group" style="justify-content: flex-end; flex: none; margin-left: auto;">
+                            <button type="submit" class="btn btn-primary" id="btn-cli-save" style="height: 38px;">Salvar Cliente</button>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="card-table-container">
                 <div class="table-wrapper">
-                    <table><thead><tr><th>Cód</th><th>Nome / Contato</th><th>Endereço Completo</th><th>Prazo</th><th>Saldo</th><th>Ações</th></tr></thead><tbody id="cli-table-body"></tbody></table>
+                    <table><thead><tr><th>Cód</th><th>Nome Fantasia / Contato</th><th>Razão Social (Fiscal)</th><th>Endereço Completo</th><th>Saldo</th><th>Ações</th></tr></thead><tbody id="cli-table-body"></tbody></table>
                 </div>
             </div>
         </section>
@@ -582,6 +584,43 @@
             } catch (e) { console.error("Erro ao buscar CEP", e); }
         }
 
+        // --- NOVA FUNÇÃO: BUSCA AUTOMÁTICA DE CNPJ ---
+        async function buscarCNPJ(cnpj) {
+            let cnpjLimpo = cnpj.replace(/\D/g, '');
+            if (cnpjLimpo.length !== 14) return; // Só faz a busca se for CNPJ (14 dígitos)
+            
+            try {
+                document.getElementById('c-nome').placeholder = "Buscando dados na Receita...";
+                let res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpjLimpo}`);
+                
+                if (!res.ok) {
+                    throw new Error("CNPJ não encontrado ou erro na API");
+                }
+                
+                let dados = await res.json();
+                
+                // Preenche os campos
+                document.getElementById('c-razao').value = dados.razao_social || '';
+                // Se tiver Nome Fantasia ele usa, senão usa a Razão Social no campo principal
+                document.getElementById('c-nome').value = dados.nome_fantasia || dados.razao_social || '';
+                document.getElementById('c-cep').value = dados.cep || '';
+                document.getElementById('c-rua').value = `${dados.logradouro || ''} ${dados.complemento || ''}`.trim();
+                document.getElementById('c-num').value = dados.numero || '';
+                document.getElementById('c-cidade').value = dados.municipio || '';
+                document.getElementById('c-telefone').value = dados.ddd_telefone_1 || dados.ddd_telefone_2 || '';
+                
+                document.getElementById('c-nome').placeholder = "Aparece nas vendas";
+                
+                // Avisa o usuário que deu certo (opcional, mas bom pro feedback)
+                sysAlert("Dados da empresa importados com sucesso!");
+                
+            } catch (e) {
+                console.error("Erro ao buscar CNPJ", e);
+                document.getElementById('c-nome').placeholder = "Aparece nas vendas";
+                sysAlert("Não foi possível buscar esse CNPJ automaticamente. Você pode preencher manualmente.");
+            }
+        }
+
         let verCanceladasGlobal = false; let filtroAcertoAtual = 'Todos'; let carrinhoAtual = []; let pagamentosVenda = []; 
         let db = { clientes: JSON.parse(localStorage.getItem('db_clientes')) || [], produtos: JSON.parse(localStorage.getItem('db_produtos')) || [], vendas: JSON.parse(localStorage.getItem('db_vendas')) || [], vendedores: JSON.parse(localStorage.getItem('db_vendedores')) || [] };
         db.clientes.forEach(c => { if(c.credito === undefined) c.credito = 0; }); 
@@ -592,17 +631,18 @@
         function autoFillVendedor() { formatInputVal('v-vendedor', db.vendedores); } function autoFillProduct() { const p = formatInputVal('v-prod-input', db.produtos); if(p) { document.getElementById('v-unit').value = p.preco; } }
         function autoFillCliente() { const c = formatInputVal('v-cliente', db.clientes); const divCredito = document.getElementById('div-alerta-credito'); if(c && (c.credito || 0) > 0) { document.getElementById('v-saldo-cliente').innerText = formatCurrency(c.credito); divCredito.style.display = 'flex'; } else { divCredito.style.display = 'none'; } atualizarTotalTela(); }
 
-        // --- ATUALIZAÇÃO: CLIENTES COM IE E IND IE ---
+        // --- ATUALIZAÇÃO: CLIENTES SALVANDO A RAZÃO SOCIAL ---
         async function saveClient(e) { 
             e.preventDefault(); const idEdit = document.getElementById('c-id-edit').value; const cCodigo = parseInt(document.getElementById('c-codigo').value); const cNome = document.getElementById('c-nome').value; const cPrazo = parseInt(document.getElementById('c-prazo').value) || 0; 
+            const cRazao = document.getElementById('c-razao').value; // Novo campo
             const cTelefone = document.getElementById('c-telefone').value; const cCpf = document.getElementById('c-cpf').value; 
             const cIe = document.getElementById('c-ie').value; const cIndIe = document.getElementById('c-ind-ie').value;
             const cCep = document.getElementById('c-cep').value; const cRua = document.getElementById('c-rua').value; const cNum = document.getElementById('c-num').value; const cCidade = document.getElementById('c-cidade').value;
-            if (idEdit) { const idx = db.clientes.findIndex(c => c.id == idEdit); if (idx > -1) { db.clientes[idx] = { ...db.clientes[idx], nome: cNome, prazo: cPrazo, telefone: cTelefone, cpf: cCpf, ie: cIe, indIe: cIndIe, cep: cCep, rua: cRua, num: cNum, cidade: cCidade }; sysAlert("Cliente atualizado!"); } } else { if(db.clientes.find(c => c.id === cCodigo)) return sysAlert("Código em uso!"); db.clientes.push({ id: cCodigo, nome: cNome, prazo: cPrazo, credito: 0, telefone: cTelefone, cpf: cCpf, ie: cIe, indIe: cIndIe, cep: cCep, rua: cRua, num: cNum, cidade: cCidade }); } 
+            if (idEdit) { const idx = db.clientes.findIndex(c => c.id == idEdit); if (idx > -1) { db.clientes[idx] = { ...db.clientes[idx], nome: cNome, razaoSocial: cRazao, prazo: cPrazo, telefone: cTelefone, cpf: cCpf, ie: cIe, indIe: cIndIe, cep: cCep, rua: cRua, num: cNum, cidade: cCidade }; sysAlert("Cliente atualizado!"); } } else { if(db.clientes.find(c => c.id === cCodigo)) return sysAlert("Código em uso!"); db.clientes.push({ id: cCodigo, nome: cNome, razaoSocial: cRazao, prazo: cPrazo, credito: 0, telefone: cTelefone, cpf: cCpf, ie: cIe, indIe: cIndIe, cep: cCep, rua: cRua, num: cNum, cidade: cCidade }); } 
             saveDB(); renderClients(); e.target.reset(); document.getElementById('c-id-edit').value = ''; document.getElementById('c-codigo').readOnly = false; document.getElementById('btn-cli-save').innerText = 'Salvar Cliente'; 
         }
-        function editClient(id) { const c = db.clientes.find(c => c.id === id); if (!c) return; document.getElementById('c-id-edit').value = c.id; document.getElementById('c-codigo').value = c.id; document.getElementById('c-codigo').readOnly = true; document.getElementById('c-nome').value = c.nome; document.getElementById('c-prazo').value = c.prazo; document.getElementById('c-telefone').value = c.telefone || ''; document.getElementById('c-cpf').value = c.cpf || c.cnpj || ''; document.getElementById('c-ie').value = c.ie || ''; document.getElementById('c-ind-ie').value = c.indIe || '9'; document.getElementById('c-cep').value = c.cep || ''; document.getElementById('c-rua').value = c.rua || ''; document.getElementById('c-num').value = c.num || ''; document.getElementById('c-cidade').value = c.cidade || ''; document.getElementById('btn-cli-save').innerText = 'Atualizar Cliente'; window.scrollTo(0,0); }
-        function renderClients() { document.getElementById('cli-table-body').innerHTML = db.clientes.map(c => { let enderecoCompleto = c.rua ? `${c.rua}, ${c.num || 'S/N'} - ${c.cidade || ''}` : (c.endereco || '-'); return `<tr><td><b>${c.id}</b></td><td>${c.nome}<br><small style="color:#666">${c.telefone||'Sem telefone'}</small></td><td>${enderecoCompleto}</td><td>${c.prazo}d</td><td><b style="color:var(--success)">R$ ${formatCurrency(c.credito)}</b></td><td><button type="button" class="btn btn-info" onclick="editClient(${c.id})" style="padding:4px">✏️</button> <button type="button" class="btn btn-danger" onclick="deleteClient(${c.id})" style="padding:4px">X</button></td></tr>`; }).join(''); document.getElementById('dl-clientes').innerHTML = db.clientes.map(c => `<option value="${c.id} - ${c.nome}">`).join(''); }
+        function editClient(id) { const c = db.clientes.find(c => c.id === id); if (!c) return; document.getElementById('c-id-edit').value = c.id; document.getElementById('c-codigo').value = c.id; document.getElementById('c-codigo').readOnly = true; document.getElementById('c-nome').value = c.nome; document.getElementById('c-razao').value = c.razaoSocial || ''; document.getElementById('c-prazo').value = c.prazo; document.getElementById('c-telefone').value = c.telefone || ''; document.getElementById('c-cpf').value = c.cpf || c.cnpj || ''; document.getElementById('c-ie').value = c.ie || ''; document.getElementById('c-ind-ie').value = c.indIe || '9'; document.getElementById('c-cep').value = c.cep || ''; document.getElementById('c-rua').value = c.rua || ''; document.getElementById('c-num').value = c.num || ''; document.getElementById('c-cidade').value = c.cidade || ''; document.getElementById('btn-cli-save').innerText = 'Atualizar Cliente'; window.scrollTo(0,0); }
+        function renderClients() { document.getElementById('cli-table-body').innerHTML = db.clientes.map(c => { let enderecoCompleto = c.rua ? `${c.rua}, ${c.num || 'S/N'} - ${c.cidade || ''}` : (c.endereco || '-'); return `<tr><td><b>${c.id}</b></td><td><b>${c.nome}</b><br><small style="color:#666">${c.telefone||'Sem telefone'}</small></td><td>${c.razaoSocial || '<span style="color:#999; font-size:0.8rem">Mesmo nome principal</span>'}</td><td>${enderecoCompleto}</td><td><b style="color:var(--success)">R$ ${formatCurrency(c.credito)}</b></td><td><button type="button" class="btn btn-info" onclick="editClient(${c.id})" style="padding:4px">✏️</button> <button type="button" class="btn btn-danger" onclick="deleteClient(${c.id})" style="padding:4px">X</button></td></tr>`; }).join(''); document.getElementById('dl-clientes').innerHTML = db.clientes.map(c => `<option value="${c.id} - ${c.nome}">`).join(''); }
         async function deleteClient(id) { if(await sysConfirm('Excluir cliente?', true)) { db.clientes = db.clientes.filter(c => c.id !== id); saveDB(); renderClients(); } }
 
         async function saveVendedor(e) { e.preventDefault(); const idEdit = document.getElementById('vend-id-edit').value; const vCodigo = parseInt(document.getElementById('vend-codigo').value); const vNome = document.getElementById('vend-nome').value; if (idEdit) { const idx = db.vendedores.findIndex(v => v.id == idEdit); if (idx > -1) { db.vendedores[idx] = { ...db.vendedores[idx], nome: vNome }; sysAlert("Vendedor atualizado!"); } } else { if(db.vendedores.find(v => v.id === vCodigo)) return sysAlert("Este código já está em uso por outro vendedor!"); db.vendedores.push({ id: vCodigo, nome: vNome }); } saveDB(); renderVendedores(); e.target.reset(); document.getElementById('vend-id-edit').value = ''; document.getElementById('vend-codigo').readOnly = false; document.getElementById('btn-vend-save').innerText = 'Salvar Vendedor'; }
@@ -610,7 +650,6 @@
         function renderVendedores() { document.getElementById('vend-table-body').innerHTML = db.vendedores.map(v => `<tr><td><b>${v.id}</b></td><td>${v.nome}</td><td><button type="button" class="btn btn-info" onclick="editVendedor(${v.id})" style="padding:4px">✏️</button> <button type="button" class="btn btn-danger" onclick="deleteVendedor(${v.id})" style="padding:4px">X</button></td></tr>`).join(''); document.getElementById('dl-vendedores').innerHTML = db.vendedores.map(v => `<option value="${v.id} - ${v.nome}">`).join(''); const filterOptions = '<option value="">Todos</option>' + db.vendedores.map(v => `<option value="${v.nome}">${v.nome}</option>`).join(''); document.getElementById('f-vendedor').innerHTML = filterOptions; }
         async function deleteVendedor(id) { if(await sysConfirm('Excluir vendedor?', true)) { db.vendedores = db.vendedores.filter(v => v.id !== id); saveDB(); renderVendedores(); } }
 
-        // --- ATUALIZAÇÃO: PRODUTOS COM NCM, CFOP, ORIGEM e CBENEF ---
         async function saveProduct(e) { 
             e.preventDefault(); const idEdit = document.getElementById('p-id-edit').value; const pCodigo = parseInt(document.getElementById('p-codigo').value); const pNome = document.getElementById('p-nome').value; const pUnidade = document.getElementById('p-unidade').value; const pPreco = parseFloat(document.getElementById('p-preco').value) || 0; 
             const pNcm = document.getElementById('p-ncm').value; const pCfop = document.getElementById('p-cfop').value; const pOrigem = document.getElementById('p-origem').value; const pCbenef = document.getElementById('p-cbenef').value;
