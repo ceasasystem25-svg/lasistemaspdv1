@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Vendas Pro v10.25 - Caixa do Dia e Ordenação</title>
+    <title>Sistema de Vendas Pro v10.26 - Horário das Vendas</title>
     <style>
         :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --bg: #f3f4f6; --text: #1f2937; --info: #0ea5e9; }
         
@@ -169,7 +169,7 @@
                             <tr>
                                 <th style="width: 40px; text-align: center;"><input type="checkbox" id="check-all-vendas" onclick="toggleTodasVendas(this)"></th>
                                 <th>Nº</th>
-                                <th>Data Pedido</th>
+                                <th>Data / Hora</th>
                                 <th>Cliente</th>
                                 <th>Vendedor</th>
                                 <th>Total</th>
@@ -588,7 +588,7 @@
         function toggleTodasVendas(source, classe = 'check-venda') { const checkboxes = document.querySelectorAll(`.${classe}`); checkboxes.forEach(cb => { cb.checked = source.checked; highlightRow(cb); }); }
         function toggleTodasContas(source) { toggleTodasVendas(source, 'check-acerto'); }
 
-        // --- ATUALIZAÇÃO: RENDER SALES E UPDATE DASHBOARD COM CORREÇÕES ---
+        // --- ATUALIZAÇÃO: RENDER SALES COM HORÁRIO ---
         function renderSales() { 
             const tbody = document.getElementById('sales-table-body'); 
             const busca = document.getElementById('f-busca').value.toLowerCase(); 
@@ -619,12 +619,24 @@
 
             tbody.innerHTML = filtradas.map(v => { 
                 const dataPedStr = v.dataPedido ? v.dataPedido.split('-').reverse().join('/') : v.data.split('T')[0].split('-').reverse().join('/'); 
+                
+                // EXTRATOR DE HORÁRIO
+                let horaStr = '';
+                if (v.data && v.data.includes('T')) {
+                    const dt = new Date(v.data);
+                    if(!isNaN(dt.getTime())) {
+                        horaStr = dt.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+                    } else {
+                        horaStr = v.data.split('T')[1].substring(0, 5);
+                    }
+                }
+
                 let rowStyles = v.status === 'Cancelada' ? 'background: #fff5f5;' : ''; 
                 let pgtoVis = v.pagamento.replace(/\|/g, '<br>').replace(/Prazo em Carteira/g, '<span style="color:#f59e0b;font-weight:bold;">Prazo</span>'); 
-                return `<tr style="${rowStyles}"><td style="text-align: center;"><input type="checkbox" class="check-venda" value="${v.id}" onchange="highlightRow(this)"></td><td><b>#${formatId(v.id)}</b></td><td><b>${dataPedStr}</b></td><td>${v.cliente}</td><td>${v.vendedor || '-'}</td><td><b>R$ ${formatCurrency(v.total)}</b></td><td style="font-size:0.8rem;">${pgtoVis}</td><td><span class="badge ${v.status === 'Ativa' ? 'badge-success' : 'badge-danger'}">${v.status}</span></td></tr>`; 
+                
+                return `<tr style="${rowStyles}"><td style="text-align: center;"><input type="checkbox" class="check-venda" value="${v.id}" onchange="highlightRow(this)"></td><td><b>#${formatId(v.id)}</b></td><td><b>${dataPedStr}</b> <br><span style="font-size:0.8rem; color:#64748b;">${horaStr}</span></td><td>${v.cliente}</td><td>${v.vendedor || '-'}</td><td><b>R$ ${formatCurrency(v.total)}</b></td><td style="font-size:0.8rem;">${pgtoVis}</td><td><span class="badge ${v.status === 'Ativa' ? 'badge-success' : 'badge-danger'}">${v.status}</span></td></tr>`; 
             }).join(''); 
             
-            // Chama o dashboard sem passar filtros, para ele analisar o banco de dados completo.
             updateDashboard(); 
         }
 
