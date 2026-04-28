@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Vendas Pro v10.33 - Correção Final Impressão Compras</title>
+    <title>Sistema PDV - Dashboard de Compras Ativo</title>
     <style>
         :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --bg: #f3f4f6; --text: #1f2937; --info: #0ea5e9; --payable: #6366f1; }
         
-        body { font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; background-color: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        corpo { família de fontes: 'Segoe UI', system-ui, sans-serif; margem: 0; cor de fundo: var(--bg); cor: var(--text); altura: 100vh; exibição: flexível; direção flexível: coluna; transbordamento: oculto; }
         
-        header { background: var(--primary); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; z-index: 100; flex-wrap: wrap; gap: 10px; flex-shrink: 0; }
+        cabeçalho { fundo: var(--primary); cor: branco; preenchimento: 1rem 2rem; exibição: flexível; justificar-conteúdo: espaço-entre; alinhar-itens: centro; índice-z: 100; flex-wrap: envolver; espaçamento: 10px; flex-shrink: 0; }
         .logo-container { display: flex; align-items: center; gap: 10px; }
         .logo-container img { max-height: 40px; border-radius: 4px; background: transparent; }
         
         nav { display: flex; flex-wrap: wrap; gap: 5px; }
-        nav button { background: none; border: none; color: white; font-size: 0.9rem; cursor: pointer; padding: 0.6rem 1rem; border-radius: 6px; transition: 0.2s; }
-        nav button:hover { background: rgba(255,255,255,0.15); }
-        nav button.active-nav { background: rgba(255,255,255,0.25); font-weight: bold; }
+        botão de navegação { fundo: nenhum; borda: nenhuma; cor: branca; tamanho da fonte: 0,9rem; cursor: ponteiro; preenchimento: 0,6rem 1rem; raio da borda: 6px; transição: 0,2s; }
+        botão de navegação:hover { fundo: rgba(255,255,255,0.15); }
+        botão de navegação.active-nav { background: rgba(255,255,255,0.25); font-weight: bold; }
         
         .container { padding: 1.5rem; max-width: 1300px; margin: 0 auto; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; flex-grow: 1; overflow: hidden; }
         
@@ -30,10 +30,10 @@
         
         .card { background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 1rem; flex-shrink: 0; }
         .card-table-container { background: white; padding: 1.5rem; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-direction: column; flex-grow: 1; overflow: hidden; margin-bottom: 1rem; }
-        .top-controls { flex-shrink: 0; } 
+        .top-controls { flex-shrink: 0; }
 
         .table-wrapper { flex-grow: 1; overflow-y: auto; overflow-x: auto; border: 1px solid #e5e7eb; border-radius: 8px; background: white; min-height: 150px; }
-        .table-wrapper table { width: 100%; border-collapse: collapse; margin: 0; }
+        .table-wrapper tabela { largura: 100%; border-collapse: collapse; margem: 0; }
         .table-wrapper th, .table-wrapper td { padding: 0.9rem; text-align: left; border-bottom: 1px solid #f3f4f6; font-size: 0.9rem; }
         .table-wrapper th { background: #f9fafb; font-weight: 600; position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1); }
         
@@ -59,10 +59,10 @@
         .btn-outline-payable.active { background: var(--payable); color: white; }
         
         .btn-acao { font-weight: bold; font-size: 0.75rem; padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: opacity 0.2s; white-space: nowrap; }
-        .btn-acao:hover { opacity: 0.85; }
+        .btn-acao:hover { opacidade: 0,85; }
         .btn-acao-print { background-color: #e5e7eb; color: #1f2937; border: 1px solid #d1d5db; }
-        .btn-acao-edit { background-color: #0ea5e9; color: #ffffff; }
-        .btn-acao-cancel { background-color: #ef4444; color: #ffffff; }
+        .btn-acao-edit { cor de fundo: #0ea5e9; cor: #ffffff; }
+        .btn-acao-cancel { cor de fundo: #ef4444; cor: #ffffff; }
 
         .selected-row { background-color: #dbeafe !important; transition: background-color 0.2s; }
         .selected-row-payable { background-color: #e0e7ff !important; transition: background-color 0.2s; }
@@ -76,21 +76,21 @@
         .modal { background: white; padding: 2rem; border-radius: 12px; width: 95%; max-width: 900px; max-height: 90vh; overflow-y: auto; }
         
         /* ESTILOS ESPECÍFICOS: MODAL DE VENDA COMPACTO E LARGO */
-        #modal-venda .modal, #modal-compra .modal { max-width: 1100px; padding: 1.5rem; }
+        #modal-venda .modal, #modal-compra .modal { largura máxima: 1100px; preenchimento: 1,5rem; }
         #form-venda label, #form-compra label { font-size: 0.75rem; margin-bottom: 0.2rem; }
         #form-venda input, #form-venda select, #form-compra input, #form-compra select { padding: 0.4rem 0.6rem; font-size: 0.85rem; height: 32px; box-sizing: border-box; }
         #form-venda .btn, #form-compra .btn { padding: 0.4rem 1rem; font-size: 0.85rem; height: 32px; box-sizing: border-box; }
         #form-venda .form-row, #form-compra .form-row { margin-bottom: 0.6rem; gap: 0.8rem; }
         
         .box-secao { padding: 0.8rem 1.2rem; border-radius: 8px; margin-bottom: 0.8rem; border: 1px solid #e2e8f0; }
-        .box-secao h4 { margin-top: 0; margin-bottom: 0.6rem; font-size: 0.95rem; }
+        .box-secao h4 {margem-topo: 0; margem inferior: 0,6rem; tamanho da fonte: 0,95rem; }
         
         .scroll-carrinho { max-height: 200px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; background: white; margin-top: 10px; }
         .scroll-carrinho table { width: 100%; border-collapse: collapse; margin: 0; }
         .scroll-carrinho th, .scroll-carrinho td { padding: 0.4rem 0.6rem; font-size: 0.8rem; border-bottom: 1px solid #e2e8f0; text-align: left; }
         .scroll-carrinho th { background: #f8fafc; font-weight: bold; position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border-bottom: 2px solid #cbd5e1;}
 
-        /* MODAL DE SISTEMA CUSTOMIZADO */
+        /* MODAL DE SISTEMA PERSONALIZADO */
         #sys-modal-overlay { z-index: 2000; }
         #sys-modal-overlay .modal { max-width: 420px; padding: 2rem; text-align: center; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: popIn 0.2s ease-out; }
         #sys-modal-title { font-size: 1.25rem; margin-top: 0; margin-bottom: 10px; color: #1e293b; }
@@ -107,12 +107,12 @@
         @media screen { #receipt-print { display: none; } }
         
         @media print {
-            @page { margin: 0; } 
-            body { margin: 0; padding: 0; background: #fff; height: auto !important; overflow: visible !important; }
-            header, .container, .modal-overlay, .no-print { display: none !important; }
+            @page { margin: 0; }
+            corpo { margem: 0; preenchimento: 0; fundo: #fff; altura: auto !important; overflow: visível !important; }
+            cabeçalho, .container, .modal-overlay, .no-print { display: none !important; }
             
-            #receipt-print { display: block !important; position: relative !important; width: 76mm; margin: 0 auto; padding: 0; box-sizing: border-box; color: #000 !important; background: transparent; font-family: 'Courier New', Courier, monospace; font-size: 14px !important; font-weight: 900 !important; line-height: 1.2; text-transform: uppercase; }
-            #receipt-print * { color: #000 !important; visibility: visible; }
+            #recibo-impresso { display: block !important; position: relative !important; width: 76mm; margin: 0 auto; padding: 0; box-sizing: border-box; color: #000 !important; background: transparent; font-family: 'Courier New', Courier, monospace; font-size: 14px !important; font-weight: 900 !important; line-height: 1.2; text-transform: uppercase; }
+            #recibo-impresso * { cor: #000 !importante; visibilidade: visível; }
             .pagina-cupom { page-break-after: always; break-after: page; }
         }
     </style>
@@ -972,27 +972,33 @@
 
         
         function updatePagarDashboard() {
+            if (!document.getElementById('dash-pagar-pendente')) return; 
+            
             const hoje = new Date().toISOString().split('T')[0];
-            const mesAtual = hoje.substring(0, 7); // YYYY-MM
+            const mesAtual = hoje.substring(0, 7); 
             
-            let totalApe = 0; // A vencer
-            let totalVen = 0; // Vencido
-            let totalPag = 0; // Pago no mês
+            let totalApe = 0; 
+            let totalVen = 0; 
+            let totalPag = 0; 
             
-            db.compras.forEach(c => {
-                if (c.status === 'Ativa') {
+            (db.compras || []).forEach(c => {
+                if (c.status !== 'Cancelada') {
                     const isPago = c.situacao === 'Paga';
                     const isVencida = !isPago && c.vencimento < hoje;
                     const isAVencer = !isPago && c.vencimento >= hoje;
                     
-                    if (isAVencer) totalApe += (c.total - (c.valorPago || 0));
-                    if (isVencida) totalVen += (c.total - (c.valorPago || 0));
+                    const valTotal = parseFloat(c.total) || 0;
+                    const valPago = parseFloat(c.valorPago) || 0;
+                    let falta = valTotal - valPago;
+                    if (falta < 0) falta = 0;
                     
-                    // Se foi pago e a data da baixa (se existir) for deste mês
+                    if (isAVencer) totalApe += falta;
+                    if (isVencida) totalVen += falta;
+                    
                     if (isPago) {
-                        const dataBx = c.dataBaixa ? c.dataBaixa.substring(0, 7) : null;
+                        const dataBx = c.dataBaixa ? c.dataBaixa.substring(0, 7) : (c.data ? c.data.substring(0, 7) : null);
                         if (dataBx === mesAtual) {
-                            totalPag += (c.total); 
+                            totalPag += valTotal; 
                         }
                     }
                 }
@@ -1002,7 +1008,6 @@
             document.getElementById('dash-pagar-vencido').innerText = `R$ ${formatCurrency(totalVen)}`;
             document.getElementById('dash-pagar-pago').innerText = `R$ ${formatCurrency(totalPag)}`;
         }
-
         function updateDashboard() { updatePagarDashboard(); 
             const baseVendas = db.vendas; 
             const hoje = new Date().toISOString().split('T')[0]; 
@@ -1392,7 +1397,8 @@
                 if(filtroPagarAtual === 'Pagas' && !pg) return false; 
                 if(filtroPagarAtual === 'Vencidas' && !vn) return false; 
                 if(filtroPagarAtual === 'A Vencer' && !av) return false; return true; 
-            }); 
+                if (typeof updatePagarDashboard === 'function') updatePagarDashboard();
+        }); 
             flt.sort((a,b) => new Date(b.data) - new Date(a.data)); 
             
             tb.innerHTML = flt.map(c => { 
